@@ -12,8 +12,6 @@ def process_import(ast: ASTNode):
     import_path = ast.literals[0].value[:-1].partition("\"")[2]
     if import_path.startswith("./"):
         import_path = os.path.join(os.path.dirname(ast.parser.script_path), import_path)
-    else:
-        import_path = os.path.join(os.path.dirname(ast.root.parser.script_path), import_path)
     import_path = os.path.normpath(os.path.abspath(import_path))
     if import_path in ast.root.imports:
         return []

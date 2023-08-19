@@ -1,0 +1,9 @@
+import "lib/common.bfun"
+a = 1
+b = 1
+while (a < 2000) {
+    print("%d\n", a)
+    c = a + b
+    a = b
+    b = c
+}
