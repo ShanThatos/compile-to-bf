@@ -1,0 +1,33 @@
+import "./io.bfun"
+import "./obj.bfun"
+
+class list {
+    __data = malloc(5)
+    __size = 0
+
+    func append(value) {
+        while (this.__size >= size(this.__data))
+            this.__increase_space()
+        this.__data[this.__size] = value
+        this.__size = this.__size + 1
+    }
+
+    func at(index) {
+        if (index >= this.__size) {
+            print("Out of bounds index %d", index)
+            end
+        }
+        return this.__data[index]
+    }
+
+    func size() {
+        return this.__size
+    }
+
+    func __increase_space() {
+        new_size = size(this.__data)
+        lshift new_size 1
+        this.__data = realloc(this.__data, new_size)
+    }
+}
+

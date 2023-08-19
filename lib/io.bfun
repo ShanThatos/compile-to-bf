@@ -1,0 +1,103 @@
+import "./mem.bfun"
+
+func div10(n) {
+    mov r0 n
+    rshift r0 1
+    mov r1 r0
+    rshift r0 1
+    add r1 r0
+
+    mov r2 r1
+    rshift r2 4
+    add r1 r2
+
+    mov r2 r1
+    rshift r2 8
+    add r1 r2
+
+    mov r2 r1
+    rshift r2 16
+    add r1 r2
+
+    rshift r1 3
+
+    mov r2 r1
+    mul r2 10
+
+    return r1 + (n > r2 + 9)
+}
+
+
+func out_num(n) {
+    if (n) {
+        zcmp n
+        if (cr) {}
+        else {
+            out 45
+            neg n
+        }
+    } else {
+        out 48
+        return 0
+    }
+
+    push 10
+    while (n) {
+        r0 = div10(n)
+        
+        mov r1 r0
+        mul r1 10
+
+        mov r2 n
+        sub r2 r1
+        push r2
+        mov n r0
+    }
+
+    pop r0
+    while (10 - r0) {
+        add r0 48
+        out r0
+        pop r0
+    }
+}
+
+func out_str(s) {
+    get r1 s
+    while (r1) {
+        out r1
+        inc s
+        get r1 s
+    }
+}
+
+varfunc print(args) {
+    str = args[0]
+    num_args = args[-1] - 1
+    arg_index = 1
+
+    ch = 1
+    get ch str
+    while (ch) {
+        if (ch == 37) {
+            inc str
+            get ch str
+            if (ch == 115) {
+                out_str(args[arg_index])
+                inc arg_index
+            } else if (ch == 100) {
+                out_num(args[arg_index])
+                inc arg_index
+            } else if (ch == 37)
+                out 37
+            else {
+                out_str("IDK Format: %")
+                out ch
+                end
+            }
+        } else 
+            out ch
+        inc str
+        get ch str
+    }
+}

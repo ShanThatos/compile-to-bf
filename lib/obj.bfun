@@ -1,0 +1,52 @@
+import "./mem.bfun"
+
+
+
+func __make_caller__(instance, method) {
+    r0 = malloc(3)
+    set r0 r0
+    inc r0
+    set r0 instance
+    inc r0
+    add method 2
+    get method method
+    set r0 method
+    sub r0 2
+    return r0
+}
+
+
+func __get_ref__(obj, attr) {
+    attrs = obj[-2]
+    r2 = 0
+    __get_ref__loop:
+        get r0 attrs
+        if (r0 == 0) {
+            out 101
+            end
+        }
+        if (__streq__(r0, attr))
+            return obj + r2
+        inc r2
+        inc attrs
+    jp __get_ref__loop
+}
+
+func __streq__(a, b) {
+    if (a == b)
+        return 1
+
+    __streq__loop:
+        get r0 a
+        get r1 b
+
+        if (r0 == 0)
+            return r1 == 0
+        if (r0 != r1)
+            return 0
+        
+        inc a
+        inc b
+    jp __streq__loop
+}
+

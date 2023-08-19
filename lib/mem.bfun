@@ -1,0 +1,95 @@
+
+func malloc(size) {
+    if (size < 0)
+        size = 0
+    
+    inc size
+
+    heap_block_size = 0
+    mov r0 __heap_start__
+
+    malloc_heap_search_loop:
+        r1 = r0 - __heap_start__
+        cmp r1 __heap_size__
+        jpz malloc_heap_has_more_mem cr
+            print("Out of Memory D:")
+            end
+        malloc_heap_has_more_mem:
+
+        get heap_block_size r0
+
+        if (heap_block_size == 0) {
+            print("HEAP IS CORRUPTED\n")
+            end
+        }
+
+        zcmp heap_block_size
+        jpif malloc_heap_move_to_next_block cr
+            # heap_block_size is negative, this block is unused
+            # clean heap block (possibly combine with empty blocks)
+            while ((next_block_size = r0[-heap_block_size]) < 0) {
+                add heap_block_size next_block_size
+                set r0 heap_block_size
+            }
+
+            neg heap_block_size
+
+            # try to allocate block
+            cmp heap_block_size size
+            if (cr) {
+                set r0 size
+
+                # check if padding block has to be setup
+                sub heap_block_size size
+                jpz malloc_heap_after_setting_padding heap_block_size
+                    neg heap_block_size
+                    r0[size] = heap_block_size
+                malloc_heap_after_setting_padding:
+
+                inc r0
+                return r0
+            }
+
+        malloc_heap_move_to_next_block:
+        add r0 heap_block_size
+        
+    jp malloc_heap_search_loop
+}
+
+func size(ptr) {
+    dec ptr
+    get r0 ptr
+    dec r0
+    return r0
+}
+
+func del(ptr) {
+    dec ptr
+    get r0 ptr
+    neg r0
+    set ptr r0
+}
+
+func realloc(ptr, new_size) {
+    orig_size = size(ptr)
+    new_ptr = malloc(new_size)
+    mov r0 ptr
+    mov r1 new_ptr
+
+    amt_to_copy = orig_size
+    if (orig_size > new_size)
+        amt_to_copy = new_size
+    mov cr amt_to_copy
+    
+    realloc_copying_data:
+        jpz realloc_finished_copying cr
+        get r2 r0
+        set r1 r2
+        inc r0
+        inc r1
+        dec cr
+        jp realloc_copying_data
+    realloc_finished_copying:
+    del(ptr)
+    return new_ptr
+}

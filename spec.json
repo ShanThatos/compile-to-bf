@@ -1,0 +1,265 @@
+{
+    "COMMENT": ["REGEX_MATCH", [0, "(#[^\\n]*)(?=\\n)"]],
+    "IMPORT": ["REGEX_MATCH", [1, "(import \"[^\\n\"]*\")(?=\\n)"]],
+    "REF": ["REGEX_MATCH", [2, "([_a-zA-Z][_a-zA-Z0-9]*)\\b"]],
+    "NUMBER": ["REGEX_MATCH", [3, "([0-9]+)\\b"]],
+    "STRING": ["REGEX_MATCH", [4, "\"(([^\"\\\\\\n\\t]|(\\\\[\\\\\"nt]))*)\""]],
+
+    "label": [
+        "ONE_OF", [
+            ["REF", ":", "NUMBER"],
+            ["REF", ":"]
+        ]
+    ],
+
+    "dbg_ins": ["dbg"],
+
+    "noop_ins": ["noop"],
+    "end_ins": ["end"],
+    "jp_ins": ["jp", "REF"],
+    "jpif_ins": [
+        "ONE_OF", [
+            ["jpif", "REF", "REF"],
+            ["jpif", "REF", "NUMBER"]
+        ]
+    ],
+    "jpz_ins": [
+        "ONE_OF", [
+            ["jpz", "REF", "REF"],
+            ["jpz", "REF", "NUMBER"]
+        ]
+    ],
+
+    "inc_ins": ["inc", "REF"],
+    "dec_ins": ["dec", "REF"],
+    "neg_ins": ["neg", "REF"],
+    "add_ins": [
+        "ONE_OF", [
+            ["add", "REF", "REF"],
+            ["add", "REF", "NUMBER"]
+        ]
+    ],
+    "sub_ins": [
+        "ONE_OF", [
+            ["sub", "REF", "REF"],
+            ["sub", "REF", "NUMBER"]
+        ]
+    ],
+    "mul_ins": [
+        "ONE_OF", [
+            ["mul", "REF", "REF"],
+            ["mul", "REF", "NUMBER"]
+        ]
+    ],
+
+    "even_ins": [
+        "ONE_OF", [
+            ["even", "REF"],
+            ["even", "NUMBER"]
+        ]
+    ],
+    "odd_ins": [
+        "ONE_OF", [
+            ["odd", "REF"],
+            ["odd", "NUMBER"]
+        ]
+    ],
+    "lshift_ins": [
+        "ONE_OF", [
+            ["lshift", "REF", "REF"],
+            ["lshift", "REF", "NUMBER"]
+        ]
+    ],
+    "rshift_ins": [
+        "ONE_OF", [
+            ["rshift", "REF", "REF"],
+            ["rshift", "REF", "NUMBER"]
+        ]
+    ],
+
+    "zcmp_ins": [
+        "ONE_OF", [
+            ["zcmp", "REF"],
+            ["zcmp", "NUMBER"]
+        ]
+    ],
+    "cmp_ins": [
+        "ONE_OF", [
+            ["cmp", "REF", "REF"],
+            ["cmp", "NUMBER", "REF"],
+            ["cmp", "REF", "NUMBER"],
+            ["cmp", "NUMBER", "NUMBER"]
+        ]
+    ],
+
+    "mov_ins": [
+        "ONE_OF", [
+            ["mov", "REF", "REF"],
+            ["mov", "REF", "NUMBER"]
+        ]
+    ],
+    "movl_ins": [
+        "ONE_OF", [
+            ["movl", "REF", "REF"],
+            ["movl", "REF", "NUMBER"]
+        ]
+    ],
+    "movh_ins": [
+        "ONE_OF", [
+            ["movh", "REF", "REF"],
+            ["movh", "REF", "NUMBER"]
+        ]
+    ],
+    "get_ins": ["get", "REF", "REF"],
+    "set_ins": [
+        "ONE_OF", [
+            ["set", "REF", "REF"],
+            ["set", "REF", "NUMBER"]
+        ]
+    ],
+
+    "push_ins": [
+        "ONE_OF", [
+            ["push", "REF"],
+            ["push", "NUMBER"]
+        ]
+    ],
+    "pop_ins": ["pop", "REF"],
+
+    "out_ins": [
+        "ONE_OF", [
+            ["out", "REF"],
+            ["out", "NUMBER"]
+        ]
+    ],
+    "in_ins": ["in", "REF"],
+
+    "instruction": [
+        "ONE_OF", [
+            "dbg_ins",
+
+            "noop_ins",
+            "end_ins",
+
+            "jp_ins",
+            "jpif_ins",
+            "jpz_ins",
+
+            "inc_ins",
+            "dec_ins",
+            "neg_ins",
+            "add_ins",
+            "sub_ins",
+            "mul_ins",
+
+            "even_ins",
+            "odd_ins",
+            "lshift_ins",
+            "rshift_ins",
+
+            "zcmp_ins",
+            "cmp_ins",
+
+            "mov_ins",
+            "movl_ins",
+            "movh_ins",
+            "get_ins",
+            "set_ins",
+
+            "push_ins",
+            "pop_ins",
+
+            "out_ins",
+            "in_ins"
+        ]
+    ],
+
+    "asm": [
+        "ONE_OF", [
+            "label",
+            "instruction"
+        ]
+    ],
+
+    "function": ["ONE_OF", ["func", "varfunc"], "REF", "(", "function_params", ")", "{", "function_body", "}"],
+    "function_params": ["OPTIONAL", ["DELIMITER", ["REF", ","]]],
+    "function_body": ["REPEAT", ["FORWARD", "statement"]],
+
+    "global_statement": ["global", "DELIMITER", ["REF", ","]],
+
+    "if_else_statement": [
+        "FORWARD", "if_statement",
+        "else", "statement"
+    ],
+    "if_statement": ["if", "(", "expression", ")", "statement"],
+
+    "while_statement": ["while", "(", "expression", ")", "statement"],
+
+    "continue_statement": ["continue"],
+
+    "break_statement": ["break"],
+
+    "return_statement": ["return", "expression"],
+
+
+    "expression_statement": ["expression"],
+    "expression": ["e_rel"],
+    "e_rel": ["DELIMITER", ["e_add_sub", ["ONE_OF", ["<", "<=", "==", "!=", ">=", ">"]]]],
+    "e_add_sub": ["DELIMITER", ["e_mul", ["ONE_OF", ["+", "-"]]]],
+    "e_mul": ["DELIMITER", ["e_neg", ["ONE_OF", ["*", "/", "%"]]]],
+    "e_neg": ["OPTIONAL", "-", "e_unit"],
+    "e_unit": ["ONE_OF", [
+        "e_par", "e_assign",
+        "REF", "NUMBER", 
+        "STRING"
+    ], "REPEAT", "e_ref"],
+    "e_par": ["(", "expression", ")"],
+    "e_assign": [[
+        "ONE_OF", ["REF", "e_par"],
+        "REPEAT", "e_ref"
+    ], "e_assign_op", "expression"],
+    "e_assign_op": ["ONE_OF", ["=", "+=", "-=", "*=", "/=", "%="]],
+    "e_ref": ["ONE_OF", [
+        "e_index", "e_call", "e_dot"
+    ]],
+    "e_index": ["[", "expression", "]"],
+    "e_call": ["(", "OPTIONAL", ["DELIMITER", ["expression", ","]], ")"],
+    "e_dot": [".", "REF"],
+
+    "statement": [
+        "ONE_OF", [
+            "COMMENT",
+            ["FORWARD", "asm"],
+            ["PASS", "{", "REPEAT", ["FORWARD", "statement"], "PASS", "}"],
+            "global_statement",
+            "if_else_statement",
+            "if_statement",
+            "while_statement",
+            "continue_statement", 
+            "break_statement",
+            "return_statement",
+            "expression_statement"
+        ]
+    ],
+
+    "class_def": [
+        "class", "REF", "{", "REPEAT", [
+            "ONE_OF", [
+                "function",
+                "class_field"
+            ]
+        ], "}"
+    ],
+    "class_field": ["REF", "=", "expression"],
+
+    "program": [
+        "REPEAT", [
+            "ONE_OF", [
+                "IMPORT",
+                "function",
+                "class_def",
+                ["FORWARD", "statement"]
+            ]
+        ]
+    ]
+}

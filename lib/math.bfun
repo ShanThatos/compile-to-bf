@@ -1,0 +1,39 @@
+
+
+func div(a, b) {
+    final_mul = 1
+
+    if (a < 0) {
+        neg final_mul
+        neg a
+    }
+    if (b < 0) {
+        neg final_mul
+        neg b
+    }
+    r0 = a
+    r1 = b
+    r2 = 1
+
+    while (r0 > r1) {
+        lshift r1 1
+        lshift r2 1
+    }
+
+    ans = 0
+    while (r2) {
+        if (r0 >= r1) {
+            sub r0 r1
+            add ans r2
+        } else {
+            rshift r1 1
+            rshift r2 1
+        }
+    }
+    
+    return ans
+}
+
+func mod(a, b) {
+    return a - div(a, b) * b
+}
