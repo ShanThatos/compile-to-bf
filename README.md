@@ -72,7 +72,7 @@ while (a < 2000) {
     b = c
 }
 ```
-Here it is: [examples/fibonacci.bf](./examples/fibonacci.bf). Notice one thing, it goes beyond 255 :D. The brainf&ast;ck code itself is meant to be run in an 8-bit cell interpreter, but bfun & bfasm supports up to 32-bit integers. And theoretically, there's a single variable in my code that can be increased to make it support any number of bits even though brainf&ast;ck itself is limited to 8-bit cells. 
+Here it is: [examples/fib.bf](./examples/fib.bf). Notice one thing, it goes beyond 255 :D. The brainf&ast;ck code itself is meant to be run in an 8-bit cell interpreter, but bfun & bfasm supports up to 32-bit integers. And theoretically, there's a single variable in my code that can be increased to make it support any number of bits even though brainf&ast;ck itself is limited to 8-bit cells. 
 
 ## How to run
 Running the transpiler is a simple: 
